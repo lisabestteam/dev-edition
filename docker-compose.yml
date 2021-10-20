@@ -1,0 +1,61 @@
+version: '3.3'
+
+services:
+  traefik:
+    image: traefik:v2.0
+    ports:
+      - "80:80"
+      - "8081:8080"
+    volumes:
+      - ./configs/traefik.yaml:/traefik.yaml
+  cop:
+    image: tokend/traefik-cop:1.0.0
+    restart: unless-stopped
+    environment:
+      - KV_VIPER_FILE=/config.yaml
+    volumes:
+      - ./configs/cop.yaml:/config.yaml
+    entrypoint: sh -c "traefik-cop run"
+  upstream:
+    image: nginx
+    restart: unless-stopped
+    volumes:
+    - ./configs/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+    - "8000:80"
+  core:
+    image: tokend/core:3.7.0
+    depends_on:
+      - traefik
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=core
+      - POSTGRES_PASSWORD=core
+      - POSTGRES_DB=core
+      - PGDATA=/data/pgdata
+      - ENSUREDB=1
+      - CONFIG=/core-config.ini
+    volumes:
+      - ./configs/core.ini:/core-config.ini
+      - core-data:/data
+    labels:
+      - "autoheal=true"
+  horizon:
+    image: tokend/horizon:3.10.0
+    depends_on:
+      - core
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=horizon
+      - POSTGRES_PASSWORD=horizon
+      - POSTGRES_DB=horizon
+      - PGDATA=/data/pgdata
+    volumes:
+      - ./configs/horizon.yaml:/config.yaml
+      - horizon-data:/data
+    ports: 
+      - 8028:80
+
+volumes:
+  core-data:
+  horizon-data:
