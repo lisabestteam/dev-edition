@@ -56,6 +56,42 @@ services:
     ports: 
       - 8028:80
 
+  password-api:
+    image: ghcr.io/lisabestteam/password-svc:f7ca672a5d8189b6bf7ed39a21146b113c379316
+    restart: unless-stopped
+    depends_on:
+      - horizon
+      - password_db
+    volumes:
+      - ./configs/password.yaml:/config.yaml
+    entrypoint: sh -c "password --config=config.yaml migrate up && password --config=./config.yaml run service server"
+    ports:
+      - 8012:80
+    
+  password-ingest:
+    image: ghcr.io/lisabestteam/password-svc:f7ca672a5d8189b6bf7ed39a21146b113c379316
+    restart: unless-stopped
+    depends_on:
+      - horizon
+      - password_db
+    volumes:
+      - ./configs/password.yaml:/config.yaml
+    entrypoint: sh -c "password --config=config.yaml migrate up && password --config=./config.yaml run service ingest"
+    
+
+  password_db:
+    image: tokend/postgres-ubuntu:9.6
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=password
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=password
+      - PGDATA=/pgdata
+    volumes:
+      - password-data:/pgdata
+    
+
 volumes:
   core-data:
   horizon-data:
+  password-data:
