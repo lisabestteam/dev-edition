@@ -57,26 +57,30 @@ services:
       - 8028:80
 
   password-api:
-    image: ghcr.io/lisabestteam/password-svc:94b719bbafd812d865685566ecaad7e1d541a98a
+    image: ghcr.io/lisabestteam/password-svc:fc239cb48cdfb551e057cdd8453fc22facf750c0
     restart: unless-stopped
     depends_on:
       - horizon
       - password_db
+    environment:
+      - KV_VIPER_FILE=/config.yaml
     volumes:
       - ./configs/password.yaml:/config.yaml
-    entrypoint: sh -c "password --config=config.yaml migrate up && password --config=./config.yaml run service server"
+    entrypoint: sh -c "password run service server"
     ports:
       - 8012:80
     
   password-ingest:
-    image: ghcr.io/lisabestteam/password-svc:94b719bbafd812d865685566ecaad7e1d541a98a
+    image: ghcr.io/lisabestteam/password-svc:fc239cb48cdfb551e057cdd8453fc22facf750c0
     restart: unless-stopped
     depends_on:
       - horizon
       - password_db
+    environment:
+      - KV_VIPER_FILE=/config.yaml
     volumes:
       - ./configs/password.yaml:/config.yaml
-    entrypoint: sh -c "password --config=config.yaml migrate up && password --config=./config.yaml run service ingest"
+    entrypoint: sh -c "password migrate up && password run service ingest"
     
 
   password_db:
