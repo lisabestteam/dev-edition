@@ -57,7 +57,7 @@ services:
       - 8028:80
 
   password-api:
-    image: ghcr.io/lisabestteam/password-svc:f7ca672a5d8189b6bf7ed39a21146b113c379316
+    image: ghcr.io/lisabestteam/password-svc:94b719bbafd812d865685566ecaad7e1d541a98a
     restart: unless-stopped
     depends_on:
       - horizon
@@ -69,7 +69,7 @@ services:
       - 8012:80
     
   password-ingest:
-    image: ghcr.io/lisabestteam/password-svc:f7ca672a5d8189b6bf7ed39a21146b113c379316
+    image: ghcr.io/lisabestteam/password-svc:94b719bbafd812d865685566ecaad7e1d541a98a
     restart: unless-stopped
     depends_on:
       - horizon
